@@ -1,1 +1,3 @@
-# feedyouneed
+# FeedYouNeed
+
+Система рекомандаций постов
