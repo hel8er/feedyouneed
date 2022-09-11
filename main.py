@@ -12,11 +12,10 @@ def start_ngrok():
     [ngrok.disconnect(t.public_url) for t in ngrok.get_tunnels()]
     #print(ngrok.get_tunnels())
     http_tunnel = ngrok.connect(8000)
-    return ngrok.get_tunnels()[0].public_url
-
-print('start', start_ngrok())
-ngrok.kill()
-print('after kill', ngrok.get_tunnels())
+    url = ngrok.get_tunnels()[0].public_url
+    print(url)
+    return url
+    
 strapi = Strapi(os.getenv('STRAPI_URL'), os.getenv('STRAPI_API_KEY'))
 load_dotenv()
 app = FastAPI()
@@ -48,8 +47,9 @@ async def webhook(update: Update):
 
 @app.on_event("startup")
 async def startup_event():
-    ngrok_url = start_ngrok()
-    res = await bot.set_webhook(f"{ngrok_url}/{token}/update")
+    #res = await bot.set_webhook(f"{os.getenv('WEBHOOK_URL')}/{token}/update")
+    res = await bot.set_webhook(f"{start_ngrok()}/{token}/update")
+
     print(res)
 
 
