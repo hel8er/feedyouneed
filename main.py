@@ -5,7 +5,7 @@ from tg.schemas import Update
 from tg.obj import bot
 from dotenv import load_dotenv
 from strapi.api import Strapi
-
+from tg.context import webhook
 from pyngrok import ngrok
 
 def start_ngrok():
@@ -35,6 +35,7 @@ async def debug():
 
 
 @app.post(f"/{token}/update")
+@webhook
 async def webhook(update: Update):
     if update.message.text and not update.message.text.startswith('/'):
         data = {

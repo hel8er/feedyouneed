@@ -1,7 +1,6 @@
-
-
+from .schemas import Update
 context = {}
-
+functions = ()
 def resolver(resolver_func):
 
     def wrapper(*args, **kwargs):
@@ -22,4 +21,11 @@ def require(func):
 
         except AssertionError:
             return zerofunc
+    return wrapper
+
+
+def webhook(fn):
+    def wrapper(update: Update):
+        print('update text:', update.message.text)
+        return fn
     return wrapper
