@@ -5,7 +5,7 @@ from tg.schemas import Update
 from tg.obj import bot
 from dotenv import load_dotenv
 from strapi.api import Strapi
-from tg.context import webhook, build_context
+from tg.context import webhook as wh, build_context
 from pyngrok import ngrok
 import bot_logic
 
@@ -36,16 +36,16 @@ async def debug():
 
 
 @app.post(f"/{token}/update")
-# @webhook
+@wh
 async def webhook(update: Update):
-    build_context(update)
+    # build_context(update)
     # data = {
     #     'text': update.message.text,
     #     'sender_tid': update.message.chat.id,
     #     'message_id': update.message.message_id
     # }
     # rs = await strapi.create_post(data)
-    # print(rs)
+    print('ok')
 
 
 @app.on_event("startup")
