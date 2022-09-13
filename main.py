@@ -5,8 +5,9 @@ from tg.schemas import Update
 from tg.obj import bot
 from dotenv import load_dotenv
 from strapi.api import Strapi
-from tg.context import webhook
+from tg.context import webhook, build_context
 from pyngrok import ngrok
+import bot_logic
 
 def start_ngrok():
     [ngrok.disconnect(t.public_url) for t in ngrok.get_tunnels()]
@@ -35,16 +36,17 @@ async def debug():
 
 
 @app.post(f"/{token}/update")
-@webhook
+# @webhook
 async def webhook(update: Update):
-    if update.message.text and not update.message.text.startswith('/'):
-        data = {
-            'text': update.message.text,
-            'sender_tid': update.message.chat.id,
-            'message_id': update.message.message_id
-        }
-        rs = await strapi.create_post(data)
-        print(rs)
+    build_context(update)
+    # data = {
+    #     'text': update.message.text,
+    #     'sender_tid': update.message.chat.id,
+    #     'message_id': update.message.message_id
+    # }
+    # rs = await strapi.create_post(data)
+    # print(rs)
+
 
 @app.on_event("startup")
 async def startup_event():

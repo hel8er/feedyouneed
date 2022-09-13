@@ -1,19 +1,21 @@
 from .schemas import Update
 context = {}
-functions = ()
+functions = {}
+
 def resolver(resolver_func):
-
-    def wrapper(*args, **kwargs):
-        context[resolver_func.__name__] = resolver_func()
-        
-    return wrapper
-
+    print('reslover', resolver_func)
+    functions[resolver_func.__name__] = resolver_func
+    return resolver_func
 
 def require(func):        
+    
+
     def zerofunc():
         pass
 
     def wrapper(*resolvers):
+        print('wrap')
+        functions[func.__name__] = func
         try:
             for resolver in resolvers:
                 assert context.get(resolver) == True
@@ -26,6 +28,13 @@ def require(func):
 
 def webhook(fn):
     def wrapper(update: Update):
-        print('update text:', update.message.text)
+        [fn() for fn in context.values()]
+        [fn(update) for fn in functions.values()]
         return fn
     return wrapper
+
+def build_context(update: Update):
+    
+    for resolve in functions.values():
+        context[resolve.__name__] = resolve(update) 
+    print('context:', context, functions)
