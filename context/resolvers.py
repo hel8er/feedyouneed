@@ -1,7 +1,8 @@
 from tg.schemas import Update
-from .context import resolver
+from tg.obj import ctx
+from bot_logic import *
 
-@resolver
+@ctx.resolver
 def commands_resolver(u: Update):
     print('cmd resolcer')
     return u.message.text and u.message.text.startswith('/')

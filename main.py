@@ -5,23 +5,19 @@ from tg.schemas import Update
 from tg.obj import bot
 from dotenv import load_dotenv
 from strapi.api import Strapi
-from tg.context import webhook as wh, build_context
-from pyngrok import ngrok
-import bot_logic
-
-def start_ngrok():
-    [ngrok.disconnect(t.public_url) for t in ngrok.get_tunnels()]
-    #print(ngrok.get_tunnels())
-    http_tunnel = ngrok.connect(8000)
-    url = ngrok.get_tunnels()[0].public_url
-    print(url)
-    return url
-    
+from tg.obj import ctx
 strapi = Strapi(os.getenv('STRAPI_URL'), os.getenv('STRAPI_API_KEY'))
 load_dotenv()
 app = FastAPI()
-
+from context.resolvers import *
 token = urllib.parse.quote(os.getenv('BOT_TOKEN').split(':')[1])
+def handle(update: Update):
+    for resolver in ctx.resolvers.values():
+            ctx.context[resolver.__name__] = resolver(update) 
+            print('context:', ctx.context, ctx.resolvers, ctx.functions)
+            for handle in ctx.functions.values():
+                print(handle.__name__)
+                print(handle(update))
 
 @app.get('/debug')
 async def debug():
@@ -34,10 +30,10 @@ async def debug():
     rs = await strapi.create_post(data)
     return rs
 
-
 @app.post(f"/{token}/update")
-@wh
+#@ctx.webhook
 async def webhook(update: Update):
+    handle(update)
     # build_context(update)
     # data = {
     #     'text': update.message.text,
@@ -51,13 +47,12 @@ async def webhook(update: Update):
 @app.on_event("startup")
 async def startup_event():
     #res = await bot.set_webhook(f"{os.getenv('WEBHOOK_URL')}/{token}/update")
-    res = await bot.set_webhook(f"{start_ngrok()}/{token}/update")
+    res = await bot.set_webhook(f"{os.getenv('WEBHOOK_URL')}/{token}/update")
 
     print(res)
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    ngrok.kill()
     res = await bot.delete_webhook()
     print(res)

@@ -1,5 +1,8 @@
-from tg import context, resolvers
+from context.resolvers import ctx
 
-@context.require('commands_resolver')
+
+@ctx.require('commands_resolver')
 def test(update):
-    print('comand!!!', update.message.text)
+    return('comand!!!', update.message.text)
+
+
