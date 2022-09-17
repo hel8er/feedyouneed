@@ -3,21 +3,12 @@ import os
 from fastapi import FastAPI
 from tg.schemas import Update
 from tg.obj import bot
-from dotenv import load_dotenv
 from strapi.api import Strapi
-from tg.obj import ctx
+from bot_logic import ctx
+
 strapi = Strapi(os.getenv('STRAPI_URL'), os.getenv('STRAPI_API_KEY'))
-load_dotenv()
 app = FastAPI()
-from context.resolvers import *
 token = urllib.parse.quote(os.getenv('BOT_TOKEN').split(':')[1])
-def handle(update: Update):
-    for resolver in ctx.resolvers.values():
-            ctx.context[resolver.__name__] = resolver(update) 
-            print('context:', ctx.context, ctx.resolvers, ctx.functions)
-            for handle in ctx.functions.values():
-                print(handle.__name__)
-                print(handle(update))
 
 @app.get('/debug')
 async def debug():
@@ -31,9 +22,8 @@ async def debug():
     return rs
 
 @app.post(f"/{token}/update")
-#@ctx.webhook
 async def webhook(update: Update):
-    handle(update)
+    ctx.build_context(update)
     # build_context(update)
     # data = {
     #     'text': update.message.text,

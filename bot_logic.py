@@ -1,8 +1,6 @@
-from context.resolvers import ctx
+from resolvers import ctx
 
 
-@ctx.require('commands_resolver')
+@ctx.require('commands_resolver', 'start_deeplink')
 def test(update):
     return('comand!!!', update.message.text)
-
-
